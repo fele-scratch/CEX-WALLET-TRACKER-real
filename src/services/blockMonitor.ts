@@ -64,6 +64,15 @@ export async function startBlockMonitor(rpc: RpcManager) {
     const blockPollMin = Number(process.env.BLOCK_POLL_MIN_MS ?? 400);
     const blockPollMax = Number(process.env.BLOCK_POLL_MAX_MS ?? 700);
 
+    // Initialize to current slot on startup to avoid processing old blocks
+    try {
+      const conn = rpc.getConnection();
+      lastSlot = await conn.getSlot('confirmed');
+      log(`Bot initialized at block ${lastSlot}, will monitor from here forward`);
+    } catch (e) {
+      log('Warning: Could not initialize starting slot, will start from next available');
+    }
+
     while (true) {
       try {
         const conn = rpc.getConnection();
