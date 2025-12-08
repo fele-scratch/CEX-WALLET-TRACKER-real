@@ -92,10 +92,18 @@ export async function startBlockMonitor(rpc: RpcManager) {
                   const cexPubkey = cfg.address;
 
                   const outflows = parseBlockTransactions(tx as any, cexPubkey);
-                  if (outflows.length === 0) continue;
-
+                  
+                  if (outflows.length > 0) {
+                    log(`[${cfg.label}] Found ${outflows.length} outflow(s) in tx ${signature.slice(0, 8)}...`);
+                  }
+                  
                   for (const outflow of outflows) {
-                    if (!amountMatchesRanges(outflow.amount, ranges)) continue;
+                    log(`[${cfg.label}] Outflow: ${outflow.amount} SOL to ${outflow.receiver.slice(0, 8)}...`);
+                    
+                    if (!amountMatchesRanges(outflow.amount, ranges)) {
+                      log(`[${cfg.label}] Amount ${outflow.amount} SOL does NOT match ranges: ${cfg.ranges}`);
+                      continue;
+                    }
 
                     const solscanLink = `https://solscan.io/tx/${signature}`;
                     const message = `<b>🚨 Range Match Alert</b>\n<b>CEX:</b> ${cfg.label}\n<b>Amount:</b> ${outflow.amount} SOL\n<b>Receiver:</b> ${outflow.receiver}\n<b>Tx:</b> <a href="${solscanLink}">View on Solscan</a>`;
