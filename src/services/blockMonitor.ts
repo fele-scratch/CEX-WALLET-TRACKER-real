@@ -86,7 +86,7 @@ export async function startBlockMonitor(rpc: RpcManager) {
             try {
               const blockData = await conn.getBlock(checkSlot, { maxSupportedTransactionVersion: 0 });
               if (!blockData || !blockData.transactions) {
-                await sleep(100); // Throttle requests
+                await sleep(10); // Throttle requests
                 continue;
               }
 
